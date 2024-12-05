@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Halaman Detail Produk</title>
+    <link rel="shorcut icon" type="x-icon" href="../img/pngwing.com.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #3a7ca5;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .content {
+            display: flex;
+            gap: 25px;
+            padding: 25px;
+        }
+
+        .image-container {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-container img {
+            width: 80%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+
+        .details-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .product-info {
+            background-color: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .product-info p {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .stock-container {
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .stock-list {
+            list-style-type: none;
+        }
+
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-item span {
+            font-weight: 500;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 0 25px 25px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn {
+            background-color: #FF6347;
+            color: white;
+        }
+
+        .edit-btn {
+            background-color: #32CD32;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background-color: #e5593e;
+        }
+
+        .edit-btn:hover {
+            background-color: #2bc12b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">Detail Produk</div>
+
+        <div th:if="${success}" class="alert alert-danger">
+        </div>
+
+        <div class="content">
+            <div class="image-container">
+                <img th:src="@{'/produk-gambar/' + ${produk.id}}" alt="Gambar Produk" />
+            </div>
+
+            <div class="details-container">
+                <div class="product-info">
+                    <p><strong>Nama Produk:</strong> <span th:text="${produk.namaProduk}"></span></p>
+                    <p><strong>Kategori:</strong> <span th:text="${produk.kategori.name}"></span></p>
+                    <p>
+                        <strong>Harga:</strong>
+                        <span th:text="'Rp ' + ${produk.harga}" th:attr="data-harga=${produk.harga}"></span>
+                    </p>
+
+                    <p><strong>Deskripsi:</strong> <span th:text="${produk.deskripsi}"></span></p>
+                </div>
+
+                <div class="stock-container">
+                    <h3>Ukuran Tersedia</h3>
+                    <ul class="stock-list">
+
+
+                        <li th:each="item : ${ukuranList}" class="stock-item">
+                            <span>Ukuran: <th:block th:text="${item.ukuran.size}"></th:block></span>
+                            <span>Stok: <th:block th:text="${item.stok.sum}"></th:block></span>
+
+                            <form th:action="@{/produk/update-stok-manual}" method="post"
+                                style="display: flex; align-items: center; gap: 10px;">
+                                <input type="hidden" name="idProduk" th:value="${item.produk.id}" />
+                                <input type="hidden" name="idUkuran" th:value="${item.ukuran.id}" />
+                                <input type="hidden" name="idStok" th:value="${item.stok.id}">
+
+                                <input type="number" name="stokBaru" min="0" placeholder="Stok Baru"
+                                    style="width: 80px; padding: 5px; border-radius: 4px; border: 1px solid #ccc;"
+                                    required />
+
+                                <button type="submit"
+                                    style="padding: 5px 10px; background-color: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    Tambah
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <a th:href="@{/adm-page}" class="btn back-btn">Kembali</a>
+            <a th:href="@{/edit-produk/{id}(id=${produk.id})}" class="btn edit-btn">Edit</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        const success = '[[${success}]]';
+
+        if (success) {
+            Swal.fire({
+                icon: "success",
+                title: "Sukses",
+                text: success,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+        // Menunggu hingga seluruh dokumen HTML selesai dimuat sebelum menjalankan script
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Mencari elemen <span> yang memiliki atribut 'data-harga'
+            const hargaEl = document.querySelector('span[data-harga]');
+
+            // Mengecek apakah elemen ditemukan
+            if (hargaEl) {
+                // Mengambil nilai dari atribut 'data-harga' dan mengonversinya menjadi bilangan integer
+                const rawHarga = parseInt(hargaEl.getAttribute('data-harga'), 10) || 0;
+
+                // Memformat nilai harga menjadi format angka Indonesia (contoh: 10,000)
+                const formattedHarga = new Intl.NumberFormat('id-ID', { style: 'decimal' }).format(rawHarga);
+
+                // Menampilkan teks harga yang telah diformat dalam elemen <span>
+                hargaEl.textContent = `Rp ${formattedHarga}`;
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

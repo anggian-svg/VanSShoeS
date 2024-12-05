@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Halaman Pembelian</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            background-color: #4682B4;
+            color: white;
+            padding: 10px;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+
+        .image-container {
+            flex: 1;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            height: auto;
+            padding: 10px;
+            gap: 15px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container .desk {
+            width: 100%;
+            height: 120px;
+            background-color: #fff;
+            color: #333;
+            padding: 10px;
+            box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.1);
+            text-align: justify;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .details-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .details-container p {
+            /* background-color: #4682B4; */
+            border: 1px solid black;
+            color: black;
+            padding: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 2px
+        }
+
+        .form-group select,
+        .form-group input {
+            padding: 8px;
+            /* border-radius: 8px; */
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .buttons {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .buttons a,
+        .buttons button {
+            flex: 1;
+            text-decoration: none;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            /* border-radius: 8px; */
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background-color: #FF6347;
+        }
+
+        .buy-btn {
+            background-color: #32CD32;
+            border: none;
+        }
+
+        .total-price {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4682B4;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <form th:action="@{/buy/{id}(id=${belibrg[0].produk.id})}" method="get">
+        <input type="hidden" name="productId" id="productId" th:value="${belibrg[0].produk.id}">
+        <div class="container">
+            <h1>Detail Pembelian</h1>
+            <div class="content">
+                <div class="image-container">
+                    <img th:src="@{'/produk-gambar/' + ${belibrg[0].produk.id}}" alt="Produk" />
+                    <p class="desk" th:text="'deskripsi : ' + ${belibrg[0].produk.deskripsi}"></p>
+                </div>
+                <div class="details-container">
+                    <p th:text="'Nama Produk : ' + ${belibrg[0].produk.namaProduk}"></p>
+                    <p th:text="'Kategori : ' + ${belibrg[0].produk.kategori.name}"></p>
+                    <p id="harga-produk" th:text="'Harga : ' + ${belibrg[0].produk.harga}"
+                        th:attr="data-harga=${belibrg[0].produk.harga}">
+                    </p>
+                    <div class="form-group">
+                        <label for="size-select">Ukuran:</label>
+                        <select id="size-select" name="param" th:field="${ukuran.id}">
+                            <option th:each="kat : ${belibrg}" th:text="${kat.ukuran.size}" th:value="${kat.ukuran.id}"
+                                th:data-stok="${kat.stok.sum}">
+                                Pilih Size
+                            </option>
+                        </select>
+                        <p id="stok-display" th:text="${belibrg[0].stok.sum}"></p>
+                        <label for="jumlah-beli">Jumlah Beli:</label>
+                        <input id="jumlah-beli" name="jumlah-beli" type="number" placeholder="Jml Beli" min="1"
+                            required>
+                    </div>
+                    <p id="total-harga" class="total-price">Total Harga: Rp 0</p>
+                </div>
+            </div>
+            <div class="buttons">
+                <a th:href="@{/produk}" class="cancel-btn">Batal</a>
+
+                <button type="submit" class="buy-btn">Beli</button>
+            </div>
+        </div>
+    </form>
+    <script>
+
+        // Mengambil elemen-elemen yang diperlukan dari DOM berdasarkan ID
+        const hargaProdukEl = document.getElementById('harga-produk'); // Elemen untuk menampilkan harga produk
+        const jumlahBeliEl = document.getElementById('jumlah-beli'); // Input untuk jumlah pembelian
+        const totalHargaEl = document.getElementById('total-harga'); // Elemen untuk menampilkan total harga
+        const stokDisplayEl = document.getElementById('stok-display'); // Elemen untuk menampilkan stok
+        const sizeSelectEl = document.getElementById('size-select'); // Dropdown untuk memilih ukuran produk
+
+        // Menambahkan event listener untuk input di elemen jumlah pembelian
+        jumlahBeliEl.addEventListener('input', function () {
+            // Mengambil harga produk dari teks elemen dan menghapus format selain angka
+            const hargaProduk = parseInt(hargaProdukEl.textContent.replace(/[^\d]/g, ''), 10) || 0;
+
+            // Mengambil jumlah pembelian yang diinputkan oleh pengguna
+            const jumlahBeli = parseInt(this.value, 10) || 0;
+
+            // Menghitung total harga berdasarkan harga produk dan jumlah pembelian
+            const totalHarga = hargaProduk * jumlahBeli;
+
+            // Memformat dan menampilkan total harga ke elemen totalHargaEl
+            totalHargaEl.textContent = `Total Harga: Rp ${totalHarga.toLocaleString('id-ID')}`;
+        });
+
+        // Menambahkan event listener untuk perubahan nilai di dropdown ukuran produk
+        sizeSelectEl.addEventListener('change', function () {
+            // Mengambil opsi yang dipilih dari dropdown
+            const selectedOption = this.options[this.selectedIndex];
+
+            // Mengambil atribut 'data-stok' dari opsi yang dipilih
+            const stok = selectedOption.getAttribute('data-stok');
+
+            // Menampilkan informasi stok jika tersedia, atau pesan 'Stok tidak tersedia'
+            stokDisplayEl.textContent = stok ? `Stok: ${stok}` : 'Stok tidak tersedia';
+
+            // Mengosongkan nilai input jumlah pembelian
+            jumlahBeliEl.value = '';
+
+            // Mengatur atribut 'max' pada input jumlah pembelian sesuai stok yang tersedia
+            jumlahBeliEl.setAttribute('max', stok);
+
+            // Mengatur ulang teks total harga menjadi Rp 0
+            totalHargaEl.textContent = 'Total Harga: Rp 0';
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const hargaProdukEl = document.getElementById('harga-produk');
+
+            // Ambil harga mentah dari atribut data-harga
+            const rawHarga = parseInt(hargaProdukEl.getAttribute('data-harga'), 10) || 0;
+
+            // Format harga menggunakan Intl.NumberFormat
+            const formattedHarga = new Intl.NumberFormat('id-ID', { style: 'decimal' }).format(rawHarga);
+
+            // Perbarui teks elemen dengan harga yang diformat
+            hargaProdukEl.textContent = `Harga : Rp ${formattedHarga}`;
+        });
+    </script>
+</body>
+
+</html>

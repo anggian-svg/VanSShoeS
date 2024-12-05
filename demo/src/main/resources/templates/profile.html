@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Profil Pengguna</title>
+    <link rel="shorcut icon" type="x-icon" href="../img/pngwing.com.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f9ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .profile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 50%;
+            height: 650px;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* border-radius: 20px; */
+            text-align: center;
+        }
+
+        .profile-card {
+            width: 100%;
+        }
+
+        .profile-card h2 {
+            color: #333;
+            margin-bottom: 50px;
+            font-size: 25px;
+        }
+
+        .user-info {
+            font-size: 20px;
+            color: #555;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin-bottom: 30px;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 100px;
+        }
+
+        .button-group button {
+            width: 130px;
+            padding: 5px 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 40px;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn {
+            background-color: #ff4d4d;
+        }
+
+        .logout-btn:hover {
+            background-color: #e60000;
+        }
+
+        .back-btn {
+            background-color: #4CAF50;
+        }
+
+        .back-btn:hover {
+            background-color: #3e8e41;
+        }
+
+        .topup-btn {
+            background-color: #e0b340;
+        }
+
+        .topup-btn:hover {
+            background-color: #f2cc6e;
+        }
+        .hstr-btn {
+            background-color: #e0b340;
+        }
+
+        .hstr-btn:hover {
+            background-color: #f2cc6e;
+        }
+
+        .edit-btn {
+            background-color:#e0b340;
+        }
+
+        .edit-btn:hover {
+            background-color: #f2cc6e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-container">
+        <div class="profile-card">
+
+            <!-- cek untuk alert -->
+            <div th:if="${succes}" class="alert alert-danger">
+            </div>
+            <h2>Profil Pengguna</h2>
+            <img class="profile-image" src="../img/download.jpg" alt="Profil Pengguna">
+            <p class="user-info"><strong>Nama:</strong> <span th:text="${prof[0].nama}"></span></p>
+            <p class="user-info"><strong>Username:</strong> <span th:text="${prof[0].username}"></span></p>
+            <!-- <p class="user-info"><strong>Saldo:</strong> <span th:text="'Rp. ' + ${prof[0].saldo}"></span></p> -->
+            <p class="user-info">
+                <strong>Saldo:</strong>
+                <span th:text="'Rp. ' + ${prof[0].saldo}" th:attr="data-saldo=${prof[0].saldo}"></span>
+            </p>
+
+            <div class="button-group">
+                <a th:href="@{/produk}">
+                    <button class="back-btn">Back</button>
+                </a>
+                <a th:href="@{/edit-data}">
+                    <button class="edit-btn">Edit</button>
+                </a>
+                <a th:href="@{/top-up}">
+                    <button class="topup-btn">Top Up</button>
+                </a>
+                <a th:href="@{/history-user}">
+                    <button class="hstr-btn">History</button>
+                </a>
+                <a th:href="@{/log-out}">
+                    <button class="logout-btn">Log Out</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const succes = '[[${succes}]]';
+
+        if (succes) {
+            Swal.fire({
+                icon: "success",
+                title: "Sukses",
+                text: succes,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoutButtons = document.querySelectorAll(".logout-btn");
+
+            logoutButtons.forEach(button => {
+                button.addEventListener("click", (e) => {
+                    e.preventDefault(); // Hentikan tindakan default tombol
+                    const logoutUrl = button.closest("a").getAttribute("href");
+
+                    Swal.fire({
+                        title: "Apakah Anda yakin?",
+                        text: "Ingin Keluar!!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Ya, keluar!",
+                        cancelButtonText: "Batal"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = logoutUrl;
+                        }
+                    });
+                });
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Temukan elemen <span> yang berisi saldo
+            const saldoEl = document.querySelector('.user-info span[data-saldo]');
+
+            // Ambil nilai mentah dari atribut data-saldo
+            const rawSaldo = parseInt(saldoEl.getAttribute('data-saldo'), 10) || 0;
+
+            // Format saldo menggunakan Intl.NumberFormat
+            const formattedSaldo = new Intl.NumberFormat('id-ID', { style: 'decimal' }).format(rawSaldo);
+
+            // Perbarui teks elemen dengan saldo yang diformat
+            saldoEl.textContent = `Rp. ${formattedSaldo}`;
+        });
+    </script>
+
+</body>
+
+</html>

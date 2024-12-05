@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Tambah Produk</title>
+    <link rel="shorcut icon" type="x-icon" href="../img/pngwing.com.png">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            background-image: url(../img/bisa.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            /* background-image: url(../img/unduhan.jpg); */
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 95vh;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: white;
+            background-color: #444;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        .nav-link:hover {
+            background-color: #5a9cc5;
+        }
+
+        .nav-link.active {
+            background-color: #3a7ca5;
+        }
+
+        .keluar-button {
+            padding: 12px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .keluar-button:hover {
+            background-color: #ff3333;
+        }
+
+        .logout-link {
+            margin-top: auto;
+            text-decoration: none;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-left: 300px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        button,
+        textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .size-stock-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .remove-button {
+            background-color: #dc3545;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .remove-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a th:href="@{/adm-page}" class="nav-link">Produk</a>
+        <a th:href="@{/tambah-produk}" class="nav-link active">Tambah Produk</a>
+        <a th:href="@{/add-kategori}" class="nav-link">Tambah Kategori</a>
+        <a th:href="@{/history}" class="nav-link">History Pembelian</a>
+        <a th:href="@{/user-data}" class="nav-link">User</a>
+        <a th:href="@{/log-out}" class="logout-link">
+            <button class="keluar-button">Keluar</button>
+        </a>
+    </div>
+    <div class="content">
+        <form id="productForm" th:action="@{/save-product}" method="post" th:object="${baru}"
+            enctype="multipart/form-data">
+            <label for="gambar">Gambar Produk:</label>
+            <input type="file" id="file" name="file" required>
+
+            <label for="nama">Nama Produk:</label>
+            <input type="text" id="nama" name="nama" th:field="*{namaProduk}" placeholder="Masukkan Nama Produk">
+
+            <label for="kategori">Kategori:</label>
+            <select th:field="*{kategori.id}" name="kategori" id="kategori">
+                <option th:each="kat : ${kategori}" th:value="${kat.id}" th:text="${kat.name}"></option>
+            </select>
+
+            <label for="harga">Harga:</label>
+            <input type="number" id="harga" name="harga" th:field="*{harga}" placeholder="Rp 100.000.000" min="1">
+
+            <label>Ukuran dan Stok:</label>
+            <div id="sizeStockContainer">
+                <div class="size-stock-group">
+                    <input type="number" name="ukuran[]" placeholder="Ukuran" required>
+                    <input type="number" name="stok[]" placeholder="Stok" required>
+                    <button type="button" class="remove-button" onclick="removeSizeStock(this)">Hapus</button>
+                </div>
+            </div>
+            <button type="button" onclick="addSizeStock()">Tambah Ukuran & Stok</button>
+
+            <label for="deskripsi">Deskripsi:</label>
+            <textarea name="deskripsi" id="deskripsi" placeholder="Tambahkan deskripsi" rows="3"
+                th:field="*{deskripsi}"></textarea>
+
+            <button type="submit">Tambah Produk</button>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Fungsi untuk menambahkan input ukuran dan stok baru
+        function addSizeStock() {
+            const container = document.getElementById('sizeStockContainer'); // Elemen container untuk grup ukuran dan stok
+            const group = document.createElement('div'); // Membuat elemen div untuk grup
+            group.classList.add('size-stock-group'); // Menambahkan kelas untuk styling grup
+            group.innerHTML = `
+        <input type="number" name="ukuran[]" placeholder="Ukuran" required> <!-- Input untuk ukuran -->
+        <input type="number" name="stok[]" placeholder="Stok" required> <!-- Input untuk stok -->
+        <button type="button" class="remove-button" onclick="removeSizeStock(this)">Hapus</button> <!-- Tombol hapus -->
+    `;
+            container.appendChild(group); // Menambahkan grup ke container
+        }
+
+        // Fungsi untuk menghapus grup ukuran dan stok
+        function removeSizeStock(button) {
+            const group = button.parentElement; // Mengambil elemen grup (parent dari tombol hapus)
+            group.remove(); // Menghapus elemen grup dari DOM
+        }
+
+        // Fungsi untuk mengambil data ukuran dan stok dari semua grup
+        function getSizeAndStock() {
+            const sizeStockContainer = document.getElementById("sizeStockContainer"); // Container utama
+            const sizeStockGroups = sizeStockContainer.getElementsByClassName("size-stock-group"); // Semua grup ukuran dan stok
+
+            const sizesAndStocks = []; // Array untuk menyimpan data ukuran dan stok
+            const sizeSet = new Set(); // Set untuk mendeteksi duplikasi ukuran
+
+            // Loop melalui setiap grup ukuran dan stok
+            for (let group of sizeStockGroups) {
+                const ukuran = group.querySelector('input[name="ukuran[]"]').value; // Mengambil nilai ukuran
+                const stok = group.querySelector('input[name="stok[]"]').value; // Mengambil nilai stok
+
+                // Validasi: Ukuran tidak boleh duplikat
+                if (sizeSet.has(ukuran)) {
+                    Swal.fire({
+                        icon: "error", // Menampilkan ikon error
+                        title: "Ada kesalahan", // Judul pesan
+                        text: "Ukuran tidak boleh duplikat", // Isi pesan
+                        confirmButtonColor: '#FF6347', // Warna tombol konfirmasi
+                    });
+                    return null; // Hentikan proses dan return null
+                }
+
+                sizeSet.add(ukuran); // Menambahkan ukuran ke Set untuk mendeteksi duplikasi
+                sizesAndStocks.push({ ukuran: ukuran, stok: stok }); // Menambahkan data ke array
+            }
+
+            return sizesAndStocks; // Mengembalikan array data ukuran dan stok
+        }
+
+        // Event listener untuk form submit
+        document.getElementById("productForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Mencegah form dikirim secara default
+            const sizesAndStocks = getSizeAndStock(); // Memanggil fungsi untuk mendapatkan data ukuran dan stok
+            if (sizesAndStocks) { // Jika data valid (tidak null)
+                console.log("Data ukuran dan stok:", sizesAndStocks); // Tampilkan data di console untuk debug
+                this.submit(); // Kirim form setelah validasi berhasil
+            }
+        });
+
+
+
+    </script>
+</body>
+
+</html>

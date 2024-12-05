@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shorcut icon" type="x-icon" href="../img/pngwing.com.png">
+
+    <title>Keranjang Belanja</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .cart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .cart-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-table th,
+        .cart-table td {
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        .cart-table th {
+            background-color: #333;
+            color: white;
+        }
+
+        .cart-table td {
+            border-top: 1px solid #f4f4f4;
+        }
+
+        .cart-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .total {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .button-group {
+            margin-top: 30px;
+            width: 80%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button-group a,
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+
+        .checkout-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .checkout-btn:hover {
+            background-color: #45a049;
+        }
+
+        .back,
+        .empty {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .back:hover,
+        .empty:hover {
+            background-color: #c82333;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .quantity-control button {
+            padding: 5px 10px;
+            background-color: #ddd;
+            font-size: 16px;
+        }
+
+        .quantity-control input {
+            width: 50px;
+            text-align: center;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            margin: 0 10px;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .action-links a {
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+
+        .delete-link {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .delete-link:hover {
+            background-color: #c82333;
+        }
+
+        .buy-link {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .buy-link:hover {
+            background-color: #218838;
+        }
+
+        .empty-cart-container {
+            /* background-color: white; */
+            /* padding: 40px; */
+            background-image: url(../img/YourCartIsEmpty.gif);
+            background-repeat: no-repeat;
+            background-size: contain;
+            /* border-radius: 12px; */
+            /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); */
+            width: 50%;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        .empty-cart-message {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .shop-link {
+
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            margin-top: 500px;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .shop-link:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Keranjang Belanja</h1>
+    </div>
+
+    <div class="cart-container" th:if="${bask != null and !#lists.isEmpty(bask)}">
+        <form th:action="@{/checkout-all}">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Gambar</th>
+                        <th>Nama Produk</th>
+                        <th>Ukuran</th>
+                        <th>Jumlah</th>
+                        <th>Harga</th>
+                        <th>Total</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-items">
+                    <tr th:each="ker, iterStat : ${bask}">
+                        <td>
+                            <input th:if="${iterStat.index == 0 || ker.produk.id != bask[iterStat.index - 1].produk.id}"
+                                type="hidden" name="productIds" th:value="${ker.produk.id}">
+                            <img th:src="@{'/produk-gambar/' + ${ker.produk.id}}" alt="Sepatu Sneaker"
+                                class="product-image">
+                        </td>
+                        <td th:text="${ker.produk.namaProduk}"></td>
+                        <td>
+                            <select th:id="'size-select-' + ${iterStat.index}" name="param">
+                                <option th:each="fr : ${frg}" th:if="${ker.produk.id == fr.produk.id}"
+                                    th:text="${fr.ukuran.size}" th:value="${fr.ukuran.id}"
+                                    th:data-stok="${fr.stok.sum}">
+                                </option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="quantity-control">
+                                <button th:onclick="'updateQuantity(' + ${iterStat.index} + ', -1)'"
+                                    type="button">-</button>
+                                <input type="number" name="jumlah" th:id="'quantity-' + ${iterStat.index}" value="1"
+                                    min="1" max="10" th:onchange="'updateTotal(' + ${iterStat.index} + ')'" />
+                                <button th:onclick="'updateQuantity(' + ${iterStat.index} + ', 1)'"
+                                    type="button">+</button>
+                            </div>
+                        </td>
+                        <td th:text="'Rp ' + ${ker.produk.harga}" th:id="'harga-' + ${iterStat.index}"
+                            th:attr="data-harga=${ker.produk.harga}">
+                        </td>
+
+                        <td th:id="'total-' + ${iterStat.index}">Rp 0</td>
+                        <td>
+                            <div class="action-links">
+                                <a th:href="@{/delete-card/{id}(id=${ker.id})}" class="delete-link">Hapus</a>
+                                <a href="#" class="buy-link" th:data-id="${ker.produk.id}"
+                                    th:data-index="${iterStat.index}">
+                                    Beli
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="total">
+                <p>Total: <span id="grand-total">Rp 2,250,000</span></p>
+
+            </div>
+
+            <div class="button-group">
+                <a th:href="@{/produk}" class="back">Kembali</a>
+                <a th:href="@{/delete-all}" class="empty">Kosongkan Keranjang</a>
+                <button type="submit" class="checkout-btn">Check Out Semua</button>
+            </div>
+        </form>
+    </div>
+    <div th:if="${bask == null or #lists.isEmpty(bask)}" class="empty-cart-container">
+        <p class="empty-cart-message">Keranjang Anda kosong. Silakan tambahkan produk.</p>
+        <a th:href="@{/produk}" class="shop-link">Belanja</a>
+    </div>
+
+    <div th:if="${error}" class="alert alert-danger">
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const errorMessage = '[[${error}]]';
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: "error",
+                title: "Ada kesalahan",
+                text: errorMessage,
+                confirmButtonColor: '#FF6347',
+            });
+        }
+
+        // Fungsi untuk memperbarui total harga per item berdasarkan indeks
+        function updateTotal(index) {
+            // Mengambil elemen input jumlah dan elemen harga berdasarkan indeks
+            const quantityInput = document.getElementById('quantity-' + index);
+            const hargaText = document.getElementById('harga-' + index).textContent.replace('Rp ', '').replace(/\./g, '');
+
+            // Mengubah teks harga menjadi angka
+            const harga = parseInt(hargaText, 10);
+
+            // Menghitung total harga berdasarkan jumlah yang diinput
+            const total = parseInt(quantityInput.value, 10) * harga;
+
+            // Menampilkan total harga yang telah diformat ke elemen total
+            document.getElementById('total-' + index).textContent = 'Rp ' + total.toLocaleString();
+
+            // Memperbarui total keseluruhan (grand total)
+            updateGrandTotal();
+        }
+
+        // Fungsi untuk memperbarui jumlah pembelian dengan tombol tambah/kurang
+        function updateQuantity(index, change) {
+            // Mengambil elemen input jumlah berdasarkan indeks
+            const quantityInput = document.getElementById('quantity-' + index);
+
+            // Menghitung jumlah baru berdasarkan perubahan (tambah/kurang)
+            let newQuantity = parseInt(quantityInput.value, 10) + change;
+
+            // Memastikan jumlah tidak boleh kurang dari 1
+            if (newQuantity > 0) {
+                quantityInput.value = newQuantity;
+
+                // Memperbarui total harga per item setelah perubahan jumlah
+                updateTotal(index);
+            }
+        }
+
+        // Fungsi untuk menghitung dan memperbarui total keseluruhan (grand total)
+        function updateGrandTotal() {
+            let grandTotal = 0;
+
+            // Mengambil semua elemen total harga per item
+            const totalElements = document.querySelectorAll('[id^="total-"]');
+
+            // Menjumlahkan seluruh total harga per item
+            totalElements.forEach(totalElement => {
+                const totalText = totalElement.textContent.replace('Rp ', '').replace(/\./g, '');
+                grandTotal += parseInt(totalText, 10);
+            });
+
+            // Menampilkan grand total yang telah diformat
+            document.getElementById('grand-total').textContent = 'Rp ' + grandTotal.toLocaleString();
+        }
+
+        // Event listener yang dijalankan setelah DOM selesai dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            // Menginisialisasi total harga per item untuk setiap input jumlah
+            document.querySelectorAll('[id^="quantity-"]').forEach((quantityInput, index) => {
+                updateTotal(index);
+            });
+
+            // Menginisialisasi total keseluruhan (grand total)
+            updateGrandTotal();
+        });
+
+        // Menambahkan event listener pada setiap link beli
+        document.querySelectorAll('.buy-link').forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Mencegah link melakukan navigasi default
+
+                // Mengambil atribut data-id dan data-index dari link
+                const productId = this.getAttribute('data-id');
+                const index = this.getAttribute('data-index');
+
+                // Mengambil jumlah pembelian dari input
+                const quantity = document.getElementById('quantity-' + index).value;
+
+                // Mengambil ukuran (jika ada) dari dropdown berdasarkan indeks
+                const sizeSelect = document.getElementById('size-select-' + index);
+                const sizeId = sizeSelect ? sizeSelect.value : null;
+
+                // Membuat URL untuk permintaan pembelian
+                const url = '/buyy/' + productId + '?jumlah=' + quantity + '&sizeId=' + sizeId;
+
+                // Melakukan navigasi ke URL yang telah dibangun
+                window.location.href = url;
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seleksi semua elemen <td> yang memiliki atribut data-harga
+            document.querySelectorAll('td[data-harga]').forEach((tdEl) => {
+                // Ambil harga mentah dari atribut data-harga
+                const rawHarga = parseInt(tdEl.getAttribute('data-harga'), 10) || 0;
+
+                // Format harga menggunakan Intl.NumberFormat
+                const formattedHarga = new Intl.NumberFormat('id-ID', { style: 'decimal' }).format(rawHarga);
+
+                // Perbarui teks elemen dengan harga yang diformat
+                tdEl.textContent = `Rp ${formattedHarga}`;
+            });
+        });
+    </script>
+</body>
+
+</html>

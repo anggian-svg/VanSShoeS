@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            background-image: url(../img/bisa.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            /* background-image: url(../img/unduhan.jpg); */
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 95vh;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: white;
+            background-color: #444;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        .nav-link:hover {
+            background-color: #5a9cc5;
+        }
+
+        .nav-link.active {
+            background-color: #3a7ca5;
+        }
+
+        .keluar-button {
+            padding: 12px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .keluar-button:hover {
+            background-color: #ff3333;
+        }
+
+        .logout-link {
+            margin-top: auto;
+            text-decoration: none;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            margin-left: 300px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #3a7ca5;
+            color: white;
+        }
+
+        button {
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .detail-btn {
+            background-color: #ffcc00;
+        }
+
+        .detail-btn:hover {
+            background-color: #e6b800;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff3333;
+        }
+
+        img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <a th:href="@{/adm-page}" class="nav-link active">Produk</a>
+        <a th:href="@{/tambah-produk}" class="nav-link">Tambah Produk</a>
+        <a th:href="@{/add-kategori}" class="nav-link">Tambah Kategori</a>
+        <a th:href="@{/history}" class="nav-link">History Pembelian</a>
+        <a th:href="@{/user-data}" class="nav-link">User</a>
+        <a th:href="@{/log-out}" class="logout-link">
+            <button class="keluar-button">Keluar</button>
+        </a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-danger">
+    </div>
+
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Gambar</th>
+                    <th>Nama Produk</th>
+                    <th>Kategori</th>
+                    <th>Harga</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="data : ${page}">
+                    <td th:text="${data.id}"></td>
+                    <td>
+                        <img th:src="@{'/produk-gambar/' + ${data.id}}" alt="Gambar Produk">
+                    </td>
+                    <td th:text="${data.namaProduk}"></td>
+                    <td th:text="${data.kategori.name}"></td>
+                    <td th:text="'Rp ' + ${data.harga}" th:attr="data-harga=${data.harga}"></td>
+
+                    <td>
+                        <div style="display: flex; justify-content: center; gap: 5px;">
+                            <a th:href="@{/detail-produk/{id}(id=${data.id})}">
+                                <button class="detail-btn">Detail</button>
+                            </a>
+                            <a th:href="@{/hapus-produk/{id}(id=${data.id})}">
+                                <button class="delete-btn">Hapus</button>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+        const success = '[[${success}]]';
+
+        if (success) {
+            Swal.fire({
+                icon: "success",
+                title: "Sukses",
+                text: success,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            const deleteButtons = document.querySelectorAll(".delete-btn");
+
+            deleteButtons.forEach(button => {
+                button.addEventListener("click", (e) => {
+                    e.preventDefault(); // Hentikan tindakan default tombol
+                    const deleteUrl = button.closest("a").getAttribute("href"); // Ambil URL dari link di sekitar tombol
+
+                    // Tampilkan SweetAlert konfirmasi
+                    Swal.fire({
+                        title: "Apakah Anda yakin?",
+                        text: "Data produk akan dihapus secara permanen!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Ya, hapus!",
+                        cancelButtonText: "Batal"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Lanjutkan ke URL penghapusan
+                            window.location.href = deleteUrl;
+                        }
+                    });
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seleksi semua elemen <td> yang memiliki atribut data-harga
+            document.querySelectorAll('td[data-harga]').forEach((tdEl) => {
+                // Ambil nilai mentah dari atribut data-harga
+                const rawHarga = parseInt(tdEl.getAttribute('data-harga'), 10) || 0;
+
+                // Format angka menggunakan Intl.NumberFormat
+                const formattedHarga = new Intl.NumberFormat('id-ID', { style: 'decimal' }).format(rawHarga);
+
+                // Perbarui teks elemen dengan harga yang diformat
+                tdEl.textContent = `Rp ${formattedHarga}`;
+            });
+        });
+    </script>
+
+</body>
+
+</html>

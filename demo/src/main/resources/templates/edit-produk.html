@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Edit Produk</title>
+    <link rel="shorcut icon" type="x-icon" href="../img/pngwing.com.png">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e9eef5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 900px;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #4183c4;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .content {
+            display: flex;
+            padding: 20px;
+        }
+
+        .image-section {
+            flex: 1;
+            text-align: center;
+        }
+
+        .image-section img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .details-section {
+            flex: 2;
+            padding-left: 20px;
+        }
+
+        .details-section label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .details-section input,
+        .details-section textarea,
+        .details-section select {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .button-section {
+            text-align: right;
+            margin: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #c82333;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">Edit Produk</div>
+        <div class="content">
+            <div class="image-section">
+                <img th:src="@{'/produk-gambar/' + *{id}}" alt="Produk">
+            </div>
+            <div class="details-section">
+                <form th:action="@{/save-edit}" method="post" th:object="${prd}">
+                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" th:field="*{gambar}">
+                    
+                    <label for="namaProduk">Nama Produk:</label>
+                    <input id="namaProduk" type="text" th:field="*{namaProduk}" placeholder="Masukkan Nama Produk" required />
+
+                    <label for="harga">Harga:</label>
+                    <input id="harga" type="number" th:field="*{harga}" placeholder="Masukkan Harga" required />
+
+                    
+                    <label for="kategori">Kategori:</label>
+                    <select id="kategori" th:field="*{kategori.id}">
+                        <option th:each="kat : ${kategoriList}" th:value="${kat.id}" th:text="${kat.name}">
+                            Pilih Kategori
+                        </option>
+                    </select>
+
+                    <label for="deskripsi">Deskripsi:</label>
+                    <textarea id="deskripsi" th:field="*{deskripsi}" placeholder="Masukkan Deskripsi"></textarea>
+
+                    <div class="button-section">
+                        <a th:href="@{/adm-page}" class="btn btn-secondary">Kembali</a>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

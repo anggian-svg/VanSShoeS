@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Web Penjualan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Tangerine' rel='stylesheet' type='text/css'>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="shorcut icon" type="x-icon" href="../img/pngwing.com.png">
+
+
+
+
+    <style>
+        body {
+            margin: 0;
+            /* font-family: Arial, sans-serif; */
+            font-family: "Oswald", sans-serif;
+            background-color: white;
+            /* background-color: #f0f9ff; */
+            overflow-x: hidden;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: #2c3e50;
+            color: white;
+            font-size: 18px;
+            width: 98%;
+            height: 80px;
+            position: fixed;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 70px;
+            color: #f1c40f;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: 'Tangerine', serif;
+        }
+
+        .search-bar {
+            display: flex;
+            flex: 1;
+            justify-content: flex-end;
+            margin-right: 10px;
+        }
+
+        .search-bar input {
+            padding: 11px;
+            font-size: 12px;
+            border-radius: 4px 0 0 4px;
+            width: 250px;
+        }
+
+        .search-bar button {
+            width: 50px;
+            height: 40px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 20px;
+        }
+
+        .nav-actions a {
+            text-decoration: none;
+        }
+
+        .nav-actions button {
+            width: 100px;
+            height: 38px;
+            /* border: 1px solid #f1c40f; */
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-actions button:hover {
+            background-color: #777;
+        }
+
+
+        .content {
+            margin-top: 100px;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .product-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px 0;
+
+        }
+
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            width: 200px;
+            height: 350px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: .1s;
+        }
+
+        .product-card:hover {
+            outline: 4px solid #4ECDC4;
+            outline-offset: 2px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 2px 6px 12px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .product-card h3 {
+            font-size: 18px;
+            color: black;
+        }
+
+        .product-card .category {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .product-card p {
+            font-size: 16px;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: auto;
+            justify-content: space-between;
+        }
+
+        .product-card button {
+            flex: 1;
+            padding: 6px 10px;
+            border: none;
+            font-size: 14px;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-card .buy-btn {
+            background-color: #007bff;
+        }
+
+        .product-card .buy-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .product-card .cart-btn {
+            background-color: #28a745;
+        }
+
+        .product-card .cart-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .sort {
+            margin-right: 30px;
+        }
+
+        .sort-select {
+            padding: 10px;
+            font-size: 12px;
+            border-radius: 2px;
+            background-color: #2c3e50;
+            color: #ffffff;
+            transition: border-color 0.3s;
+
+        }
+
+        .sort-select:active {
+            background-color: #2c3e50;
+        }
+
+        .container {
+            height: 100vh;
+            width: 100%;
+            font-family: Helvetica;
+            background-color: white;
+            overflow: hidden;
+        }
+
+        .loader {
+            height: 20px;
+            width: 250px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+
+        .loader--dot {
+            animation-name: loader;
+            animation-timing-function: ease-in-out;
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+            height: 20px;
+            width: 20px;
+            border-radius: 100%;
+            background-color: black;
+            position: absolute;
+            border: 2px solid white;
+        }
+
+        .loader--dot:first-child {
+            background-color: #8cc759;
+            animation-delay: 0.5s;
+        }
+
+        .loader--dot:nth-child(2) {
+            background-color: #8c6daf;
+            animation-delay: 0.4s;
+        }
+
+        .loader--dot:nth-child(3) {
+            background-color: #ef5d74;
+            animation-delay: 0.3s;
+        }
+
+        .loader--dot:nth-child(4) {
+            background-color: #f9a74b;
+            animation-delay: 0.2s;
+        }
+
+        .loader--dot:nth-child(5) {
+            background-color: #60beeb;
+            animation-delay: 0.1s;
+        }
+
+        .loader--dot:nth-child(6) {
+            background-color: #fbef5a;
+            animation-delay: 0s;
+        }
+
+        .loader--text {
+            position: absolute;
+            top: 200%;
+            left: 0;
+            right: 0;
+            width: 4rem;
+            margin: auto;
+        }
+
+        .loader--text:after {
+            content: "Loading";
+            font-weight: bold;
+            animation-name: loading-text;
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes loader {
+            15% {
+                transform: translateX(0);
+            }
+
+            45% {
+                transform: translateX(230px);
+            }
+
+            65% {
+                transform: translateX(230px);
+            }
+
+            95% {
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes loading-text {
+            0% {
+                content: "Loading";
+            }
+
+            25% {
+                content: "Loading.";
+            }
+
+            50% {
+                content: "Loading..";
+            }
+
+            75% {
+                content: "Loading...";
+            }
+        }
+
+        .footer {
+            /* background-color:  #e5cd6c; */
+            background-color: #2c3e50;
+
+            padding: 60px 20px;
+            color: #6c757d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-orient: 0 auto;
+            /* margin-bottom: 20px; */
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .footer-left,
+        .footer-middle,
+        .footer-right {
+            flex: 1;
+            padding: 10px;
+            min-width: 200px;
+            margin-bottom: 30px;
+        }
+
+        .footer-left h2 {
+            margin: 0 0 15px;
+            font-size: 24px;
+            color: whitesmoke;
+
+        }
+
+        .footer-left p {
+            margin: 0 0 15px;
+            color: whitesmoke;
+        }
+
+        .footer-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .footer-icons a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 1px solid #6c757d;
+            text-align: center;
+            line-height: 40px;
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .footer-icons a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .footer-middle,
+        .footer-right {
+            padding-left: 20px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: whitesmoke;
+
+        }
+
+        .footer-middle ul,
+        .footer-right ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-middle ul li,
+        .footer-right ul li {
+            margin: 8px 0;
+        }
+
+        .footer-middle ul li a,
+        .footer-right ul li a {
+            /* color: #6c757d; */
+            color: whitesmoke;
+            text-decoration: none;
+        }
+
+        .footer-middle ul li a:hover,
+        .footer-right ul li a:hover {
+            color: #007bff;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 14px;
+            color: whitesmoke;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .no-results {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .no-results-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loaderContainer" class='container'>
+        <div class='loader'>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--dot'></div>
+            <div class='loader--text'></div>
+        </div>
+    </div>
+
+    <div id="mainContent">
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-text">VanSShoeS</span>
+            </div>
+            <div class="search-bar">
+                <form th:action="@{/search}" method="get">
+                    <input type="text" name="search" placeholder="Cari produk atau kategori...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <div class="sort">
+                <form th:action="@{/produk}" method="get" id="sortForm">
+                    <select name="sort" class="sort-select" onchange="document.getElementById('sortForm').submit();">
+                        <option value="" disabled selected>Sort By</option>
+                        <option value="nameAsc">Name (Asc)</option>
+                        <option value="nameDesc">Name (Desc)</option>
+                        <option value="priceLow">Harga (Termurah)</option>
+                        <option value="priceHigh">Harga (Termahal)</option>
+                    </select>
+                </form>
+            </div>
+            <div class="nav-actions">
+                <a th:href="@{/keranjang}">
+                    <button id="cart-btn" class="nav-btn"> <i class="fas fa-shopping-cart"></i></button>
+                </a>
+                <a th:href="@{/profile}">
+                    <button id="profile-btn" class="nav-btn"><i class="fas fa-user"></i></button>
+                </a>
+            </div>
+        </nav>
+
+        <!-- untuk alert nya di periksa di sini -->
+        <div id="alertMessages" th:data-success-message="${success}" th:data-error-message="${error}"
+            style="display: none;"></div>
+
+        <div class="content">
+            <div class="product-container">
+                <div class="no-results" th:if="${data.isEmpty()}">
+                    <img src="../img/The bill was not found.jpg" alt="Tidak ditemukan" class="no-results-image" />
+                </div>
+                <div class="product-card" th:each="prod : ${data}">
+                    <img th:src="@{'/produk-gambar/' + ${prod.id}}" alt="Produk" />
+                    <h3 th:text="${prod.namaProduk}"></h3>
+                    <p class="category" th:text="'Kategori:' + ${prod.kategori.name}"></p>
+                    <p class="harga" th:text="'Harga : Rp ' + ${prod.harga}" th:attr="data-harga=${prod.harga}"></p>
+                    <div class="button-group">
+                        <a th:href="@{/beli/{id}(id=${prod.id})}">
+                            <button class="buy-btn">Beli</button>
+                        </a>
+                        <a th:href="@{/keranjang/{id}(id=${prod.id})}">
+                            <button class="cart-btn">Keranjang</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <h2>Let's keep in touch!</h2>
+                <p>Find us on any of these platforms, we respond 1-2 business days.</p>
+                <div class="footer-icons">
+                    <a href="#"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-facebook"></i></a>
+                    <a href="#"><i class="fa fa-dribbble"></i></a>
+                    <a href="#"><i class="fa fa-github"></i></a>
+                </div>
+            </div>
+            <div class="footer-middle">
+                <h3>USEFUL LINKS</h3>
+                <ul>
+                    <li><a th:href="@{/about}">About Us</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Github</a></li>
+                    <li><a href="#">Products</a></li>
+                </ul>
+            </div>
+            <div class="footer-right">
+                <h3>OTHER RESOURCES</h3>
+                <ul>
+                    <li><a href="#">MIT License</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright © 2024 Anggian Fansuri Siregar.</p>
+        </div>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        setTimeout(() => {
+            document.getElementById('loaderContainer').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }, 2000);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const alertContainer = document.getElementById("alertMessages");
+            const successMessage = alertContainer.getAttribute("data-success-message");
+            const errorMessage = alertContainer.getAttribute("data-error-message");
+
+            if (successMessage) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Berhasil",
+                    text: successMessage,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+
+            if (errorMessage) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Ada kesalahan",
+                    text: errorMessage,
+                    confirmButtonColor: '#FF6347',
+                });
+            }
+
+            if (successMessage || errorMessage) {
+                alertContainer.remove();
+            }
+        });
+
+
+        document.querySelectorAll('.harga').forEach((hargaProdukEl) => {
+            // Ambil harga mentah dari atribut data-harga
+            const rawHarga = parseInt(hargaProdukEl.getAttribute('data-harga'), 10) || 0;
+
+            // Format harga menggunakan Intl.NumberFormat
+            const formattedHarga = new Intl.NumberFormat('id-ID', { style: 'decimal' }).format(rawHarga);
+
+            // Update teks elemen dengan format angka yang sudah diformat
+            hargaProdukEl.textContent = `Harga : Rp ${formattedHarga}`;
+        });
+    </script>
+
+
+
+</body>
+
+</html>
